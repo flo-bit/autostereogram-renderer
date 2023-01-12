@@ -55,7 +55,7 @@ function setupScene() {
   window.addEventListener("resize", onWindowResize, false);
 
   gltfLoader = new GLTFLoader();
-  loadAnimal("icosahedron");
+  loadAnimal("horse");
 
   aStereo = new STEREO.AutostereogramRenderer(renderer, camera, scene);
 

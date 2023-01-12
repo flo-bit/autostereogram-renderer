@@ -8,10 +8,12 @@ This is a simple real time autostereogram renderer written in javascript using t
 
 ## Usage
 
+See [minimal-demo.html](https://flo-bit.github.io/autostereogram-renderer/minimal-demo.html) for a working example.
+
 ```javascript
 // import three.js and autostereogram renderer
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js";
-import * as STEREO from "./autostereogram.js";
+import * as STEREO from "https://flo-bit.github.io/autostereogram-renderer/autostereogram.js";
 
 // create your own three.js renderer, scene and camera and add some objects
 var renderer = new THREE.WebGLRenderer();
