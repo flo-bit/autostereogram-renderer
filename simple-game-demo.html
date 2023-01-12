@@ -47,9 +47,7 @@
         );
 
         // create a new autostereogram renderer, pass the three.js renderer, scene and camera
-        stereo = new STEREO.AutostereogramRenderer(renderer, camera, scene, {
-          tileCount: 20,
-        });
+        stereo = new STEREO.AutostereogramRenderer(renderer, camera, scene);
         //stereo.show("depth");
 
         createPlatforms();
@@ -129,7 +127,6 @@
           jump = true;
         }
 
-        console.log(keys);
         stereo.render();
       }
       function keydown(evt) {
