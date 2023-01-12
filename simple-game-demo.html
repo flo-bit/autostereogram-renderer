@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>autostereogram renderer - minimal demo</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      // import three.js and autostereogram renderer
+      import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js";
+      import * as STEREO from "https://flo-bit.github.io/autostereogram-renderer/autostereogram.js";
+
+      var stereo, camera, renderer, scene, obstacles;
+
+      var platformDistance = 1.5;
+
+      var player, playerYSpeed;
+      var clock = new THREE.Clock();
+
+      var keys = {},
+        jump = true;
+
+      function setup() {
+        window.addEventListener("resize", resize, false);
+        window.addEventListener("keydown", keydown, false);
+        window.addEventListener("keyup", keyup, false);
+        // create your own three.js renderer, scene and camera and add some objects
+        renderer = new THREE.WebGLRenderer();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.5,
+          4
+        );
+
+        // create a new autostereogram renderer, pass the three.js renderer, scene and camera
+        stereo = new STEREO.AutostereogramRenderer(renderer, camera, scene, {
+          tileCount: 20,
+        });
+        //stereo.show("depth");
+
+        createPlatforms();
+
+        player = new THREE.Mesh(
+          new THREE.BoxGeometry(0.2, 0.2, 0.2),
+          new THREE.MeshStandardMaterial()
+        );
+        player.position.z = -1.5;
+        scene.add(player);
+        playerYSpeed = 0;
+      }
+
+      function createPlatforms() {
+        obstacles = [];
+        for (let i = 1; i < 5; i++) {
+          let mesh = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 0.1, 1),
+            new THREE.MeshStandardMaterial()
+          );
+          mesh.position.y = -0.5 - Math.random() * 0.5;
+          mesh.position.z = i * -platformDistance;
+          mesh.position.x = (Math.random() - 0.5) * 2;
+          scene.add(mesh);
+          obstacles.push(mesh);
+        }
+      }
+
+      function resize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        stereo.setup();
+      }
+      // render the autostereogram
+      function render() {
+        requestAnimationFrame(render);
+        for (let i = 0; i < obstacles.length; i++) {
+          obstacles[i].position.z += 0.01;
+          if (obstacles[i].position.z > 0.5) {
+            obstacles[i].position.z =
+              (i > 0
+                ? obstacles[i - 1].position.z
+                : obstacles[obstacles.length - 1].position.z) -
+              platformDistance;
+            obstacles[i].position.x = (Math.random() - 0.5) * 2;
+            obstacles[i].position.y = -0.5 - Math.random() * 0.5;
+          }
+          if (
+            Math.abs(obstacles[i].position.z - player.position.z) < 0.6 &&
+            Math.abs(obstacles[i].position.x - player.position.x) < 0.6 &&
+            Math.abs(obstacles[i].position.y - player.position.y) < 0.2
+          ) {
+            playerYSpeed = 0.1;
+            jump = true;
+          }
+        }
+        playerYSpeed -= 0.005;
+        player.position.y += playerYSpeed;
+
+        if (keys[87] && jump) {
+          playerYSpeed = 0.1;
+          jump = false;
+        }
+        if (keys[65]) {
+          player.position.x -= 0.05;
+        }
+        if (keys[68]) {
+          player.position.x += 0.05;
+        }
+        if (player.position.y < -10) {
+          player.position.y = 0;
+          player.position.x = 0;
+          playerYSpeed = 0;
+          jump = true;
+        }
+
+        console.log(keys);
+        stereo.render();
+      }
+      function keydown(evt) {
+        keys[evt.keyCode] = true;
+      }
+      function keyup(evt) {
+        keys[evt.keyCode] = false;
+      }
+
+      setup();
+      render();
+    </script>
+  </body>
+</html>
